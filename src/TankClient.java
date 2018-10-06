@@ -24,6 +24,8 @@ public class TankClient extends JFrame {
 //	Explode explode = new Explode(100, 100, this);
 	List<Explode> explodes = new ArrayList<Explode>();
 	
+	NetClient nc = null;
+	
 	public static void main(String args[]) {
 		new TankClient();
 	}
@@ -44,6 +46,9 @@ public class TankClient extends JFrame {
 		
 		new Thread(new PaintThread()).start();
 		addKeyListener(new KeyMonitor());
+		
+		nc = new NetClient("localhost", TankServer.TCP_PORT);
+		
 	}
 
 	public void paint(Graphics g) {
