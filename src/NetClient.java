@@ -1,20 +1,29 @@
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class NetClient {
 		
-	String host;
-	int port;
+	private static final int UDP_PORT = 8888;
+	int udpPort;
+
+	NetClient() {
+		udpPort = UDP_PORT;
+	}
 	
-	NetClient(String host, int port) {
+	public void connect(String IP, int port) {
 		try {
-			Socket s = new Socket(host, port);
+			Socket s = new Socket(IP, port); //TCP connect
+			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+			dos.write(udpPort); //UDP send & receive message --> write udpPort to Server and initialized one of client
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	
+	
 	
 }
