@@ -1,4 +1,5 @@
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,6 +9,7 @@ import java.util.List;
 public class TankServer {
 
 	public static final int TCP_PORT = 18104;
+	private static int ID = 100;
 	List<Client> clients = new ArrayList<>();
 
 	public static void main(String args[]) {
@@ -31,6 +33,8 @@ public class TankServer {
 				int udpPort = dis.readInt(); //get udpPort from TankClient
 				String IP = s.getInetAddress().getHostAddress(); //Client IP address
 				clients.add(new Client(IP, udpPort));
+				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+				dos.writeInt(ID++);
 System.out.print("A Client connected! ");
 System.out.println("Addr:" + s.getInetAddress() + " port:" + s.getPort() + "udpPort: " + udpPort); //remote port
 				s.close(); //TCP only use once; then close;

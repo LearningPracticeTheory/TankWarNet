@@ -24,7 +24,7 @@ public class TankClient extends JFrame {
 //	Explode explode = new Explode(100, 100, this);
 	List<Explode> explodes = new ArrayList<Explode>();
 	
-	NetClient nc = new NetClient();
+	NetClient nc = new NetClient(this);
 	
 	public static void main(String args[]) {
 		new TankClient();

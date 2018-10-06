@@ -18,6 +18,7 @@ class Tank {
 	boolean bU = false, bD = false, bL = false, bR = false;
 	
 	Direction dir = Direction.STOP;
+	public int ID;
 	
 	private static Random r = new Random();
 	private static Direction dirs[] = Direction.values();
@@ -46,6 +47,7 @@ class Tank {
 			g.setColor(Color.BLUE);
 		}
 		g.fillOval(x, y, WIDTH, HEIGHT);
+		g.drawString("" + ID, x, y-10);
 		g.setColor(c);
 		if(gb != null) gb.draw(x + WIDTH / 2, y + HEIGHT / 2, g);
 		AIDirection();
