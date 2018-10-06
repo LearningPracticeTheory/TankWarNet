@@ -9,7 +9,7 @@ class Tank {
 	private final int AI_MOVE_LEVEL = 2;//1~9
 	private final int AI_FIRE_LEVEL = 1;
 	
-	private int x, y;
+	int x, y;
 	TankClient tc = null;
 	GunBarrel gb = null;
 	
@@ -31,6 +31,7 @@ class Tank {
 		gb = new GunBarrel(x + WIDTH / 2, y + HEIGHT / 2, this);
 //		tc.addKeyListener(new KeyMonitor());
 //System.out.println("gun barrel" + tc.gb);
+		
 	}
 
 	public void draw(Graphics g) {
