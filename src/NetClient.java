@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 public class NetClient {
 		
-	private static final int UDP_PORT = 6664; //different with Server's
+	private static final int UDP_PORT = 6666; //different with Server's
 										//change every single time when in one machine
 										//or will throw Address already used
 	int udpPort;

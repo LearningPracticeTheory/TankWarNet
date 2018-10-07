@@ -92,7 +92,7 @@ class Tank {
 		else if(!bU && !bD && !bL && !bR) dir = Direction.STOP;
 		
 		if(oldDir != dir) { //only send moveMsg when direction change
-			tc.nc.send(new TankMoveMsg(ID, dir)); 
+			tc.nc.send(new TankMoveMsg(ID, x, y, dir)); 
 		}
 	}
 	
