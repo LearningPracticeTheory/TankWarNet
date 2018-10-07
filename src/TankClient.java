@@ -1,8 +1,20 @@
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 public class TankClient extends JFrame {
 	
@@ -31,6 +43,9 @@ public class TankClient extends JFrame {
 	}
 	
 	TankClient() {
+		
+		new MyDialog(this, "Enter Server's & Client's IP and UDP port", true);
+		
 //		setSize(800, 600);
 		setSize(GAME_WIDTH, GAME_HEIGHT);
 		setTitle("TankWar");
@@ -46,9 +61,11 @@ public class TankClient extends JFrame {
 		*/
 		new Thread(new PaintThread()).start();
 		addKeyListener(new KeyMonitor());
-		
-		nc.connect("localhost", TankServer.TCP_PORT);
-		
+		/*
+		nc.connect("localhost", TankServer.TCP_PORT); 
+			//use Client's IP connect to Server
+			//connect to Server's TCP port;
+		*/
 	}
 
 	public void paint(Graphics g) {
@@ -130,6 +147,65 @@ public class TankClient extends JFrame {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			myTank.keyReleased(e);
+		}
+		
+	}
+	
+	
+	private class MyDialog extends JDialog {
+
+		private static final long serialVersionUID = 1L;
+		JLabel jlServerIP = new JLabel("Server IP:");
+		JTextField jtfServerIP = new JTextField("192.168.43.98", 12);
+//		JLabel jlClientIP = new JLabel("Client IP:");
+//		JTextField jtfClientIP = new JTextField("192.168.140.1", 12);
+		JLabel jlClientUDPPort = new JLabel("Client UDP_Port:");
+		JTextField jtfClientUDPPort = new JTextField("6666", 5);
+		JButton jbConfirm = new JButton("Confirm");
+		
+		MyDialog(JFrame frame, String title, boolean modal) {
+			super(frame, title, modal);
+			this.setLayout(new FlowLayout());
+			this.add(jlServerIP);
+			this.add(jtfServerIP);
+//			this.add(jlClientIP);
+//			this.add(jtfClientIP);
+			this.add(jlClientUDPPort);
+			this.add(jtfClientUDPPort);
+			this.add(jbConfirm);
+			this.pack();
+			this.setLocationRelativeTo(frame);
+			
+			this.addWindowListener(new WindowAdapter() {
+
+				@Override
+				public void windowClosing(WindowEvent e) {
+					System.exit(0);
+				}
+				
+			});
+			
+			jbConfirm.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					try {
+						String serverIP = jtfServerIP.getText().trim();
+//						String clientIP = jtfClientIP.getText().trim();
+						int clientUDPPort = Integer.parseInt(jtfClientUDPPort.getText().trim());
+//						nc.udpPort = udpPort; //Server's TCP port & Client's own UDP port
+						nc.connect(serverIP, TankServer.TCP_PORT, clientUDPPort); 
+						//connect to Server by use Server's IP & TCP_Port + Client UDP port
+					} catch(NumberFormatException e1) {
+						jtfClientUDPPort.setText("6666");
+						jtfClientUDPPort.requestFocus(true);
+					}
+					dispose();
+				}
+				
+			});
+			
+			setVisible(true);
 		}
 		
 	}

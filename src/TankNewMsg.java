@@ -21,7 +21,7 @@ public class TankNewMsg implements Msg {
 	}
 
 	//Server's IP & UDP_PORT
-	public void send(DatagramSocket ds, String IP, int udpPort) {
+	public void send(DatagramSocket ds, String IP, int udpPort) { //send to Server IP & UDP port
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
 		try {

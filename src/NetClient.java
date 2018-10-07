@@ -9,29 +9,49 @@ import java.net.UnknownHostException;
 
 public class NetClient {
 		
-	private static final int UDP_PORT = 6666; //different with Server's
+//	private static final int UDP_PORT = 6665; //different with Server's
 										//change every single time when in one machine
 										//or will throw Address already used
-	int udpPort;
+//	int udpPort;
 	TankClient tc;
+	String serverIP = null;
 
 	NetClient(TankClient tc) {
-		udpPort = UDP_PORT; //Client's UDP_PORT for receive message
+//		udpPort = UDP_PORT; //Client's UDP_PORT for receive message
 		this.tc = tc; //but send to Server use server's UDP
 	}
 	
 	DatagramSocket ds = null;
 	
-	public void connect(String IP, int tcpPort) {
+	public void connect(String serverIP, int tcpPort, int udpPort) { //Server's IP & TCP_PORT + Client's UDP_PORT
 		Socket s = null;
 		try {
-			s = new Socket(IP, tcpPort); //TCP connect
+			this.serverIP = serverIP;
+//			s = new Socket(IP, tcpPort); //TCP connect Client's IP & Server's TCP_PORT ERROR
+			s = new Socket(serverIP, tcpPort);
+			
+			/*
+			 * Server's IP & TCP_PORT CORRECT
+			 * Server will get the source of Socket where it from
+			 * example: In Server, s.getInetAddress(); will get the Client's Address
+			 * so Client Don't need send the IP to Server, 
+			 * which means Server.accept().getInetAddress(); will get the IP of Client
+			 */
+/*			
+System.out.println(s.getInetAddress()); // /127.0.0.1
+System.out.println(s.getLocalAddress()); // /127.0.0.1
+System.out.println(s.getRemoteSocketAddress()); // /127.0.0.1:18104 remote
+System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
+*/
 			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 			dos.writeInt(udpPort); //UDP send & receive message --> write udpPort to Server and initialized one of client
 			DataInputStream dis = new DataInputStream(s.getInputStream());
 			int ID = dis.readInt();
 			tc.myTank.ID = ID;
-			ds = new DatagramSocket(udpPort);
+			ds = new DatagramSocket(udpPort); //No binding in to Socket, just get Client's UDP port
+			//but DatagrameSocket.send(new DatagramPacket(byte[], length, InetSocketAddress(IP, UDP_port)));
+			//InetSocketAddress's argument IP will point to the Address & UDP port
+			//example: Server's IP & UPD_Port
 			TankNewMsg msg = new TankNewMsg(tc.myTank);
 			send(msg);
 		} catch (UnknownHostException e) {
@@ -54,8 +74,9 @@ public class NetClient {
 	}
 
 	public void send(Msg msg) {
-		msg.send(ds, "localhost", TankServer.UDP_PORT); //message send to Server
+//		msg.send(ds, "localhost", TankServer.UDP_PORT); //message send to Server
 			//use Server's ID & UDP_PORT
+		msg.send(ds, serverIP, TankServer.UDP_PORT); //send to Server by Server IP & UDP_PORT
 	}
 	
 	private class UDPRecvThread implements Runnable {  //like Chat's ServerInfoThread
@@ -102,11 +123,12 @@ System.out.println("A packet received from Server");
 			case Msg.TANK_MOVE_MSG:
 				msg = new TankMoveMsg(tc);
 				msg.parse(dis);
-//System.out.println("TankMoveMsg parse"); //Debug
+//System.out.println("TankMoveMsg parse");
 				break;
 			}
 		}
 		
 	}
+
 	
 }

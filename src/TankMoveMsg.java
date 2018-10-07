@@ -46,7 +46,7 @@ public class TankMoveMsg implements Msg {
 		DatagramPacket dp = new DatagramPacket(buf, buf.length, new InetSocketAddress(IP, udpPort));
 
 		try {
-			ds.send(dp); //send packet to Server, which need point out Server's IP & UDP
+			ds.send(dp); //send packet to Server, which need point out Server's IP & UDP CORRECT
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
