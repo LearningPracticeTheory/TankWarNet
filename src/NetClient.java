@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
 
 public class NetClient {
 		
-	private static final int UDP_PORT = 6665; //different with Server's
+	private static final int UDP_PORT = 6666; //different with Server's
 										//change every single time when in one machine
 										//or will throw Address already used
 	int udpPort;
@@ -82,7 +82,7 @@ System.out.println("A packet received from Server");
 			ByteArrayInputStream dais = new ByteArrayInputStream(buf, 0, dp.getLength());
 			DataInputStream dis = new DataInputStream(dais);
 //			TankNewMsg msg = new TankNewMsg(tc.myTank); //the message belong different Tank, not always myTank
-			TankNewMsg msg = new TankNewMsg();
+			TankNewMsg msg = new TankNewMsg(tc);
 			msg.parse(dis);
 		}
 		

@@ -9,13 +9,14 @@ import java.net.InetSocketAddress;
 public class TankNewMsg {
 
 	Tank t = null;
+	TankClient tc = null;
 	
 	TankNewMsg(Tank t) {
 		this.t = t;
 	}
 
-	public TankNewMsg() {
-
+	public TankNewMsg(TankClient tc) {
+		this.tc = tc;
 	}
 
 	//Server's IP & UDP_PORT
@@ -44,11 +45,18 @@ public class TankNewMsg {
 	public void parse(DataInputStream dis) {
 		try {
 			int ID = dis.readInt();
+			if(tc.myTank.ID == ID) {
+				return;
+			}
 			int x = dis.readInt();
 			int y = dis.readInt();
 			Direction dir = Direction.values()[dis.readInt()]; //find index and getValuse of index
 			boolean good = dis.readBoolean();
-System.out.println("ID:" + ID + " x:" + x + " y:" + y + " dir:" + dir + " good:" + good);
+//System.out.println("ID:" + ID + " x:" + x + " y:" + y + " dir:" + dir + " good:" + good);
+			Tank t = new Tank(x, y, good, tc);
+			t.gb.dir = dir;
+			t.ID = ID;
+			tc.tanks.add(t);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

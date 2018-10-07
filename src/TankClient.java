@@ -9,7 +9,7 @@ public class TankClient extends JFrame {
 	private static final long serialVersionUID = 1L;
 	public final int GAME_WIDTH = 800;
 	public final int GAME_HEIGHT = 600;
-	private final int TANK_FIRST_NUM = 5;
+//	private final int TANK_FIRST_NUM = 5;
 	
 //	int x = 50, y = 50;
 	
@@ -39,11 +39,11 @@ public class TankClient extends JFrame {
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		getContentPane().setBackground(Color.BLACK);
 		setVisible(true);
-		
+		/*
 		for(int i = 0; i < TANK_FIRST_NUM; i++) {
 			tanks.add(new Tank(50 + (i + 1) * 40, 50, false, this));
 		}
-		
+		*/
 		new Thread(new PaintThread()).start();
 		addKeyListener(new KeyMonitor());
 		
@@ -56,11 +56,11 @@ public class TankClient extends JFrame {
 
 		myTank.draw(g);
 //		enemyTank.draw(g);
-		/*
+		
 		for(int i = 0; i < tanks.size(); i++) {
 			tanks.get(i).draw(g);
 		}
-		*/
+		
 //		if(m != null) m.draw(g);
 		for(int i = 0; i < missiles.size(); i++) {
 			Missile m = missiles.get(i);
@@ -112,7 +112,6 @@ public class TankClient extends JFrame {
 				try {
 					Thread.sleep(50);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
