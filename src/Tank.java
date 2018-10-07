@@ -65,10 +65,9 @@ class Tank {
 	public Missile fire() {
 		int x = this.x + WIDTH / 2 - Missile.getWidth() / 2;
 		int y = this.y + HEIGHT / 2 - Missile.getHeight() / 2;
-		if(good) {
-			return new Missile(x, y, true, gb.dir, tc);
-		}
-		return new Missile(x, y, false, gb.dir, tc);
+		Missile m = new Missile(ID, x, y, good, gb.dir, tc); 
+		tc.nc.send(new MissileNewMsg(m));
+		return m;
 	}
 	
 	public void AIDirection() {

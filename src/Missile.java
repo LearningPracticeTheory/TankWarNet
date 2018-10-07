@@ -7,23 +7,25 @@ class Missile {
 	private static final int HEIGHT = 10;
 	
 	int x, y;
+	int tankID;
 	private static final int SPEED = Tank.getSpeed() * 2;
 
 	private boolean live = true;
-	private boolean good;
+	boolean good;
 	
 	Direction dir = null;
 	TankClient tc = null;
 	
-	public Missile(int x, int y, Direction dir) {
+	public Missile(int tankID, int x, int y, Direction dir) {
+		this.tankID = tankID;
 		this.x = x;
 		this.y = y;
 		this.dir = dir;
 	}
 	
-	public Missile(int x, int y, boolean good, Direction dir, TankClient tc) {
+	public Missile(int tankID, int x, int y, boolean good, Direction dir, TankClient tc) {
 		// TODO Auto-generated constructor stub
-		this(x, y, dir);
+		this(tankID, x, y, dir);
 		this.good = good;
 		this.tc = tc;
 	}

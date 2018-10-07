@@ -125,6 +125,10 @@ System.out.println("A packet received from Server");
 				msg.parse(dis);
 //System.out.println("TankMoveMsg parse");
 				break;
+			case Msg.MISSILE_NEW_MSG:
+				msg = new MissileNewMsg(tc);
+				msg.parse(dis);
+				break;
 			}
 		}
 		
