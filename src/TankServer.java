@@ -46,8 +46,10 @@ System.out.println("Cient IP-" + IP);
 System.out.println(s.getInetAddress());
 System.out.println(s.getLocalAddress());
 System.out.println(s.getLocalSocketAddress());
-*/
-				clients.add(new Client(IP, udpPort));
+*/				
+				Client c = new Client(IP, udpPort, dis);
+				clients.add(c);
+				new Thread(c).start();
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 				dos.writeInt(ID++);
 				
@@ -55,7 +57,8 @@ System.out.print("A Client connected! ");
 System.out.println("Addr:" + s.getInetAddress() + " tcpPort:" + s.getPort() + 
 		" udpPort: " + udpPort); //remote port which is Client's UDP port
 
-				s.close(); //TCP only use once; then close;
+//				s.close(); //TCP only use once; then close;
+				//Server's Socket need accept the Message of clientQuit，so need connect all the time
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -71,14 +74,33 @@ System.out.println("Addr:" + s.getInetAddress() + " tcpPort:" + s.getPort() +
 		
 	}
 	
-	private class Client {
+	private class Client implements Runnable {
 		
+		private static final int QUIT = 1;
 		String IP;
 		int udpPort;
+		private DataInputStream dis;
 		
 		public Client(String IP, int udpPort) {
 			this.IP = IP;
 			this.udpPort = udpPort;
+		}
+
+		public Client(String IP, int udpPort, DataInputStream dis) {
+			this(IP, udpPort);
+			this.dis = dis;
+		}
+
+		@Override
+		public void run() {
+			try {
+				if(dis.readInt() == QUIT) {
+					clients.remove(this);
+//System.out.println("Client size:" + clients.size());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}

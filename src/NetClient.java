@@ -22,9 +22,11 @@ public class NetClient {
 	}
 	
 	DatagramSocket ds = null;
+	DataOutputStream dos = null;
+	
+	Socket s = null;
 	
 	public void connect(String serverIP, int tcpPort, int udpPort) { //Server's IP & TCP_PORT + Client's UDP_PORT
-		Socket s = null;
 		try {
 			this.serverIP = serverIP;
 //			s = new Socket(IP, tcpPort); //TCP connect Client's IP & Server's TCP_PORT ERROR
@@ -43,7 +45,7 @@ System.out.println(s.getLocalAddress()); // /127.0.0.1
 System.out.println(s.getRemoteSocketAddress()); // /127.0.0.1:18104 remote
 System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 */
-			DataOutputStream dos = new DataOutputStream(s.getOutputStream());
+			dos = new DataOutputStream(s.getOutputStream());
 			dos.writeInt(udpPort); //UDP send & receive message --> write udpPort to Server and initialized one of client
 			DataInputStream dis = new DataInputStream(s.getInputStream());
 			int ID = dis.readInt();
@@ -66,14 +68,14 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			try {
+			/*try {
 				if(s != null) {
 					s.close();
 					s = null;
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 		
 		new Thread(new UDPRecvThread()).start();
@@ -142,6 +144,10 @@ System.out.println("A packet received from Server");
 				break;
 			case Msg.MISSILE_DEAD_MSG:
 				msg = new MissileDeadMsg(tc);
+				msg.parse(dis);
+				break;
+			case Msg.TANK_REBORN_MSG:
+				msg = new TankRebornMsg(tc);
 				msg.parse(dis);
 				break;
 			}

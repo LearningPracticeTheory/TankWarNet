@@ -34,7 +34,7 @@ class Tank {
 //System.out.println("gun barrel" + tc.gb);
 		
 	}
-
+	
 	public void draw(Graphics g) {
 		if(!live) { //No need compare which tank is good or bad, remove directly if !live
 					//synchronized at each Clients
@@ -80,6 +80,8 @@ class Tank {
 		}
 	}
 	*/
+	
+	
 	public void direction() {
 		
 		Direction oldDir = dir;
@@ -145,6 +147,12 @@ class Tank {
 		// TODO Auto-generated method stub
 		int key = e.getKeyCode();
 		switch(key) {
+		case KeyEvent.VK_F5:
+			if(!live) {
+				live = true;
+				tc.nc.send(new TankRebornMsg(this));
+			}
+			break;
 		case KeyEvent.VK_UP :
 			bU = true;
 			break;

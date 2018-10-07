@@ -7,6 +7,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class TankClient extends JFrame {
 	private static final long serialVersionUID = 1L;
 	public final int GAME_WIDTH = 800;
 	public final int GAME_HEIGHT = 600;
+	private static final int QUIT = 1;
 //	private final int TANK_FIRST_NUM = 5;
 	
 //	int x = 50, y = 50;
@@ -51,7 +53,31 @@ public class TankClient extends JFrame {
 		setTitle("TankWar ID:" + myTank.ID);
 		setResizable(false);
 		setLocationRelativeTo(null);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+//		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					nc.dos.writeInt(QUIT);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} finally {
+					try {
+						if(nc.s != null) {
+							nc.s.close();
+							nc.s = null;
+						}
+					} catch (IOException e2) {
+						e2.printStackTrace();
+					}
+					System.exit(0);
+				}
+			}
+			
+		});
+		
 		getContentPane().setBackground(Color.BLACK);
 		setVisible(true);
 		/*
