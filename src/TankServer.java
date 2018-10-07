@@ -1,3 +1,5 @@
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,8 +12,14 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TankServer {
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
+public class TankServer extends JFrame {
+
+	private static final long serialVersionUID = 1L;
 	public static final int TCP_PORT = 18104;
 	public static final int UDP_PORT = 8888;
 	private static int ID = 100;
@@ -24,7 +32,47 @@ public class TankServer {
 	ServerSocket ss = null;
 	Socket s = null;
 	
+	/*
+	 * Server don't need GUI, but run jar cannot Close directly
+	 * so, build an Window in order to close the Server
+	 */
+	JTextArea jta = null;
+	
+	private void buildFrame() { 
+		
+		jta = new JTextArea("Server Start\n");
+		
+		this.setTitle("TankServer");
+		this.setSize(400, 300);
+		this.setLocation(50, 50);
+		
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				System.exit(0);
+			}
+			
+		});
+		
+		this.add(new JScrollPane(jta));
+		this.setVisible(true);
+		
+	}
+	
+	private void textAreaAppend(String str) {
+		jta.append(str);
+		jta.selectAll();
+		jta.setCaretPosition(jta.getSelectedText().length() - 1);
+	}
+	
+	private void showErrorMsgDialog(String str) {
+		JOptionPane.showMessageDialog(this, str);
+	}
+	
 	public void launch() {
+		buildFrame();
+		
 		new Thread(new UDPClient()).start();
 		
 		try { //divide from Socket
@@ -32,7 +80,10 @@ public class TankServer {
 //System.out.println("ServerSocket: " + ss.getLocalSocketAddress()); //== getInetAddress + getLocalPort
 		//0.0.0.0/0.0.0.0:18104 TCP_PORT
 		} catch (IOException e1) {
-			e1.printStackTrace();
+//			e1.printStackTrace();
+			showErrorMsgDialog("Address already in use 1\n which means Server has already existed!");
+			System.exit(0);
+			
 		}
 		
 		try {
@@ -47,15 +98,17 @@ System.out.println(s.getInetAddress());
 System.out.println(s.getLocalAddress());
 System.out.println(s.getLocalSocketAddress());
 */				
-				Client c = new Client(IP, udpPort, dis);
+				Client c = new Client(IP, s.getPort(), udpPort, dis);
 				clients.add(c);
-				new Thread(c).start();
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
-				dos.writeInt(ID++);
+				dos.writeInt(ID++); 
 				
-System.out.print("A Client connected! ");
-System.out.println("Addr:" + s.getInetAddress() + " tcpPort:" + s.getPort() + 
-		" udpPort: " + udpPort); //remote port which is Client's UDP port
+				new Thread(c).start();
+				
+				textAreaAppend("A Client connected! ");
+				textAreaAppend("-Addr:" + s.getInetAddress() + " -tcpPort:" + s.getPort() + 
+							" -udpPort: " + udpPort + "\n");		
+							//remote port which is Client's UDP port
 
 //				s.close(); //TCP only use once; then close;
 				//Server's Socket need accept the Message of clientQuit，so need connect all the time
@@ -78,28 +131,46 @@ System.out.println("Addr:" + s.getInetAddress() + " tcpPort:" + s.getPort() +
 		
 		private static final int QUIT = 1;
 		String IP;
+		int tcpPort;
 		int udpPort;
 		private DataInputStream dis;
 		
-		public Client(String IP, int udpPort) {
+		public Client(String IP, int tcpPort, int udpPort) {
 			this.IP = IP;
+			this.tcpPort = tcpPort;
 			this.udpPort = udpPort;
 		}
 
-		public Client(String IP, int udpPort, DataInputStream dis) {
-			this(IP, udpPort);
+		public Client(String IP, int tcpPort, int udpPort, DataInputStream dis) {
+			this(IP, tcpPort, udpPort);
 			this.dis = dis;
 		}
 
 		@Override
 		public void run() {
 			try {
-				if(dis.readInt() == QUIT) {
+				if(dis.readInt() == QUIT) { //readInt block method || normal quit
 					clients.remove(this);
 //System.out.println("Client size:" + clients.size());
+					
+					textAreaAppend("A Client quited! ");
+					textAreaAppend("-Addr:" + IP + " -tcpPort:" + tcpPort + " -udpPort:" + udpPort + "\n");
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+//				e.printStackTrace();
+//				showErrorMsgDialog("Connection Reset, which means Client has Same Address & UDP port");
+				if(clients.contains(this)) { //same UDP port & Address Error quit
+					clients.remove(this);
+					textAreaAppend("A Client quited! ");
+					textAreaAppend("-Addr:" + IP + " -tcpPort:" + tcpPort + " -udpPort:" + udpPort + " repeat\n");
+					ID--;
+					/*
+					 * same color BUG after enter same Client UDP port & address
+					 * ID fall back
+					 * same logic: when new 10 enmeyTanks, but collide with other when new Tank
+					 * so i--; loop renew another Tank, drop/discard the collide one.
+					 */
+				} 
 			}
 		}
 		
@@ -130,7 +201,9 @@ System.out.println("DS " + ds.getRemoteSocketAddress()); //Null
 System.out.println("DS " + ds.getLocalSocketAddress()); //0.0.0.0/0.0.0.0:8888 Server UDP port
 */
 			} catch (SocketException e1) {
-				e1.printStackTrace();
+//				e1.printStackTrace();
+				showErrorMsgDialog("Address already in use 2\n which means Server has already existed!");
+				System.exit(0);
 			}
 			
 //System.out.println("UDP Socket started at udpPort: " + UDP_PORT);

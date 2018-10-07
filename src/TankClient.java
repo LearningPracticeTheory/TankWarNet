@@ -10,26 +10,32 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 
 public class TankClient extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	public final int GAME_WIDTH = 800;
 	public final int GAME_HEIGHT = 600;
-	private static final int QUIT = 1;
+	public static final int QUIT = 1;
 //	private final int TANK_FIRST_NUM = 5;
 	
-//	int x = 50, y = 50;
+	int x, y;
 	
 //	Image img = null;
 	
-	Tank myTank = new Tank(50, 50, true, this);
+	Tank myTank = null;
+	Random r = new Random();
+	
 //	Tank enemyTank = new Tank(100, 100, false, this);
 	List<Tank> tanks = new ArrayList<Tank>();
 	
@@ -38,15 +44,25 @@ public class TankClient extends JFrame {
 //	Explode explode = new Explode(100, 100, this);
 	List<Explode> explodes = new ArrayList<Explode>();
 	
+	MyDialog dialog = null;
+	
 	NetClient nc = new NetClient(this);
 	
 	public static void main(String args[]) {
 		new TankClient();
 	}
 	
+	private void showErrorMsgDialog(String str) {
+		JOptionPane.showMessageDialog(this, str);
+	}
+	
 	TankClient() {
 		
-		new MyDialog(this, "Enter Server's & Client's IP and UDP port", true);
+		x = r.nextInt(GAME_WIDTH - Tank.WIDTH);
+		y = 30 + r.nextInt(GAME_HEIGHT - Tank.HEIGHT - 30);
+		myTank = new Tank(x, y, true, this);
+
+		dialog = new MyDialog(this, "Enter Server's & Client's IP and UDP port", true);
 		
 //		setSize(800, 600);
 		setSize(GAME_WIDTH, GAME_HEIGHT);
@@ -60,9 +76,12 @@ public class TankClient extends JFrame {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				try {
-					nc.dos.writeInt(QUIT);
+					nc.dos.writeInt(QUIT); //tell server KIA this Client
+					nc.send(new TankDeadMsg(myTank.ID)); //then tell all the others that remove this one
 				} catch (IOException e1) {
-					e1.printStackTrace();
+//					e1.printStackTrace();
+					showErrorMsgDialog("Connection reset, EXIT!");
+					System.exit(0);
 				} finally {
 					try {
 						if(nc.s != null) {
@@ -183,17 +202,23 @@ public class TankClient extends JFrame {
 		
 	}
 	
+
 	
-	private class MyDialog extends JDialog {
+	JTextField jtfServerIP = new JTextField("127.0.0.1", 12); 
+
+	public class MyDialog extends JDialog implements ActionListener{
 
 		private static final long serialVersionUID = 1L;
 		JLabel jlServerIP = new JLabel("Server IP:");
-		JTextField jtfServerIP = new JTextField("192.168.43.98", 12);
+		
 //		JLabel jlClientIP = new JLabel("Client IP:");
 //		JTextField jtfClientIP = new JTextField("192.168.140.1", 12);
 		JLabel jlClientUDPPort = new JLabel("Client UDP_Port:");
-		JTextField jtfClientUDPPort = new JTextField("6666", 5);
+		String udpPort = String.valueOf(r.nextInt(33333) + 10000);
+		JTextField jtfClientUDPPort = new JTextField(udpPort, 5);
 		JButton jbConfirm = new JButton("Confirm");
+//		frame.jtfServerIP = new JTextField("127.0.0.1", 12); 
+		//Syntax error on token "jtfServerIP", VariableDeclaratorId expected after this token
 		
 		MyDialog(JFrame frame, String title, boolean modal) {
 			super(frame, title, modal);
@@ -208,6 +233,12 @@ public class TankClient extends JFrame {
 			this.pack();
 			this.setLocationRelativeTo(frame);
 			
+			jbConfirm.registerKeyboardAction(this, 
+					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+					JComponent.WHEN_IN_FOCUSED_WINDOW);
+			
+			jbConfirm.addActionListener(this);
+			
 			this.addWindowListener(new WindowAdapter() {
 
 				@Override
@@ -217,27 +248,25 @@ public class TankClient extends JFrame {
 				
 			});
 			
-			jbConfirm.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					try {
-						String serverIP = jtfServerIP.getText().trim();
-//						String clientIP = jtfClientIP.getText().trim();
-						int clientUDPPort = Integer.parseInt(jtfClientUDPPort.getText().trim());
-//						nc.udpPort = udpPort; //Server's TCP port & Client's own UDP port
-						nc.connect(serverIP, TankServer.TCP_PORT, clientUDPPort); 
-						//connect to Server by use Server's IP & TCP_Port + Client UDP port
-					} catch(NumberFormatException e1) {
-						jtfClientUDPPort.setText("6666");
-						jtfClientUDPPort.requestFocus(true);
-					}
-					dispose();
-				}
-				
-			});
-			
 			setVisible(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource().equals(jbConfirm)) {
+				try {
+					String serverIP = jtfServerIP.getText().trim();
+//				 	String clientIP = jtfClientIP.getText().trim();
+					int clientUDPPort = Integer.parseInt(jtfClientUDPPort.getText().trim());
+//					nc.udpPort = udpPort; //Server's TCP port & Client's own UDP port
+					nc.connect(serverIP, TankServer.TCP_PORT, clientUDPPort); 
+					//connect to Server by use Server's IP & TCP_Port + Client UDP port
+				} catch(NumberFormatException e1) {
+					jtfClientUDPPort.setText(udpPort);
+					jtfClientUDPPort.requestFocus(true);
+				}
+				dispose();
+			}
 		}
 		
 	}

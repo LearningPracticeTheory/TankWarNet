@@ -2,10 +2,14 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.NoRouteToHostException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import javax.swing.JOptionPane;
 
 public class NetClient {
 		
@@ -26,12 +30,47 @@ public class NetClient {
 	
 	Socket s = null;
 	
+	private void showErrorMsgDialog(String str) {
+		JOptionPane.showMessageDialog(tc, str);
+//		JOptionPane.showConfirmDialog(tc, str); //0, 1, 2
+//System.out.println("i = "  + i);
+	}
+	
 	public void connect(String serverIP, int tcpPort, int udpPort) { //Server's IP & TCP_PORT + Client's UDP_PORT
 		try {
 			this.serverIP = serverIP;
 //			s = new Socket(IP, tcpPort); //TCP connect Client's IP & Server's TCP_PORT ERROR
 			s = new Socket(serverIP, tcpPort);
+		} catch(UnknownHostException e) {
+//			e.printStackTrace();
+			showErrorMsgDialog("UnknownHostException, System exit");
+			System.exit(0);
+		} catch(NoRouteToHostException e) {
+//			e.printStackTrace();
+			showErrorMsgDialog("No route to host: connect\n System exit");
+			System.exit(0);
+//			tc.new MyDialog(tc, "Enter Server's & Client's IP and UDP port", true);
+		} catch(ConnectException e) { //ERROR
+//System.out.println("1");
+			showErrorMsgDialog("Connection refused: connect\n The IP of Server refused to connect\n "
+					+ "Please enter another serverIP");
+//System.out.println("2");
+/*
+			if(tc.dialog != null) {
+				tc.dialog.setVisible(false);
+				tc.repaint();
+				tc.dialog.dispose();
+				tc.dialog = null;
+			}
+			*/
+			tc.jtfServerIP.setText("127.0.0.1");
 			
+			tc.dialog = tc.new MyDialog(tc, "Enter Server's & Client's IP and UDP port", true);
+//			System.exit(0);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		
 			/*
 			 * Server's IP & TCP_PORT CORRECT
 			 * Server will get the source of Socket where it from
@@ -45,6 +84,7 @@ System.out.println(s.getLocalAddress()); // /127.0.0.1
 System.out.println(s.getRemoteSocketAddress()); // /127.0.0.1:18104 remote
 System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 */
+		try {
 			dos = new DataOutputStream(s.getOutputStream());
 			dos.writeInt(udpPort); //UDP send & receive message --> write udpPort to Server and initialized one of client
 			DataInputStream dis = new DataInputStream(s.getInputStream());
@@ -66,9 +106,20 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
+			JOptionPane.showMessageDialog(tc, "No Server or Address udpPort already in used \n System exit");
+			try {
+				dos.writeInt(TankClient.QUIT);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			/*
+			System.out.println("Address already in use: Cannot bind, which means IP & UPD port repeat\n"
+					+ "Please rebuild & change UDP port & try again");
+			*/
+			System.exit(0);
 		} finally {
-			/*try {
+			/*try { //Cannot just close connection, cause Server still need receive Client Quit message
 				if(s != null) {
 					s.close();
 					s = null;
@@ -99,7 +150,13 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 			DatagramPacket dp = new DatagramPacket(buf, buf.length);
 			while(true) {
 				try {
-					ds.receive(dp); //Received packet from Server
+//					if(s.isClosed()) {
+//						showErrorMsgDialog("Server GG\n Please Quit");
+//System.out.println("ERR");
+//						continue;
+//					} else if(s.isConnected()) {
+						ds.receive(dp); //Received packet from Server
+//					} 
 System.out.println("A packet received from Server");
 					parse(dp);
 				} catch (IOException e) {

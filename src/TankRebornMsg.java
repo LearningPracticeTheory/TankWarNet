@@ -26,7 +26,6 @@ public class TankRebornMsg implements Msg {
 		DataOutputStream dos = new DataOutputStream(baos);
 		try {
 			
-System.out.println("rebornTank is NULL send ?" + (rebornTank == null));
 			dos.writeInt(msgType);
 			dos.writeInt(rebornTank.ID);
 			dos.writeInt(rebornTank.x);
@@ -58,7 +57,6 @@ System.out.println("rebornTank is NULL send ?" + (rebornTank == null));
 			/*
 			 * confirm this Tank which with this tankID is not exist receive 
 			 */ 
-System.out.println("rebornTank is NULL receive?" + (rebornTank == null));
 			if(tankID == tc.myTank.ID) {
 				return;
 			} else if(rebornTank == null) {

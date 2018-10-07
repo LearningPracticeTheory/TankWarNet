@@ -4,8 +4,8 @@ import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 
 class Tank {	 
-	private static final int WIDTH = 30;
-	private static final int HEIGHT = 30;
+	public static final int WIDTH = 30;
+	public static final int HEIGHT = 30;
 	private static final int SPEED = 10;
 //	private final int AI_MOVE_LEVEL = 2;//1~9
 //	private final int AI_FIRE_LEVEL = 1;
@@ -83,6 +83,10 @@ class Tank {
 	
 	
 	public void direction() {
+		
+		if(!live) {
+			return;
+		}
 		
 		Direction oldDir = dir;
 		
