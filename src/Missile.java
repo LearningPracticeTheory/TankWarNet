@@ -3,8 +3,8 @@ import java.util.List;
 
 class Missile {
 	
-	private static final int WIDTH = 10;
-	private static final int HEIGHT = 10;
+	public static final int WIDTH = 10;
+	public static final int HEIGHT = 10;
 	private static int ID_START = 1;
 	
 	int x, y;
@@ -13,7 +13,7 @@ class Missile {
 	private static final int SPEED = Tank.getSpeed() * 2;
 
 	private boolean live = true;
-	boolean good;
+	private boolean good;
 	
 	Direction dir = null;
 	TankClient tc = null;
@@ -27,7 +27,6 @@ class Missile {
 	}
 	
 	public Missile(int tankID, int x, int y, boolean good, Direction dir, TankClient tc) {
-		// TODO Auto-generated constructor stub
 		this(tankID, x, y, dir);
 		this.good = good;
 		this.tc = tc;
@@ -43,7 +42,7 @@ class Missile {
 		Color c = g.getColor();
 		
 		if(good) {
-			g.setColor(new Color(255, 200, 255));//Pink
+			g.setColor(new Color(255, 200, 255)); //Pink
 		} else {
 			g.setColor(Color.GREEN);
 		}
@@ -54,9 +53,10 @@ class Missile {
 		move();
 	}
 
+	/**
+	 * 根据方向更新子弹的位置
+	 */
 	private void move() {
-		// TODO Auto-generated method stub
-//System.out.println(dir);
 		switch(dir) {
 		case U :
 			y -= SPEED;
@@ -140,5 +140,4 @@ class Missile {
 		return good;
 	}
 
-	
 }

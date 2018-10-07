@@ -54,9 +54,7 @@ public class TankRebornMsg implements Msg {
 			Direction tankDir = Direction.values()[dis.readInt()];
 			Direction gbDir = Direction.values()[dis.readInt()];
 			boolean good = dis.readBoolean();
-			/*
-			 * confirm this Tank which with this tankID is not exist receive 
-			 */ 
+			
 			if(tankID == tc.myTank.ID) {
 				return;
 			} else if(rebornTank == null) {
@@ -66,6 +64,7 @@ public class TankRebornMsg implements Msg {
 				rebornTank.gb.dir = gbDir;
 				tc.tanks.add(rebornTank);
 			} 
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

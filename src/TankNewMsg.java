@@ -20,7 +20,6 @@ public class TankNewMsg implements Msg {
 		this.tc = tc;
 	}
 
-	//Server's IP & UDP_PORT
 	public void send(DatagramSocket ds, String IP, int udpPort) { //send to Server IP & UDP port
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
@@ -29,8 +28,7 @@ public class TankNewMsg implements Msg {
 			dos.writeInt(t.ID);
 			dos.writeInt(t.x);
 			dos.writeInt(t.y);
-			dos.writeInt(t.dir.ordinal()); //GunBarrel's Direction decide Tank's direction
-										 //but use tank.dir to identify
+			dos.writeInt(t.dir.ordinal()); 
 			dos.writeBoolean(t.isGood());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -56,7 +54,6 @@ public class TankNewMsg implements Msg {
 			int y = dis.readInt();
 			Direction dir = Direction.values()[dis.readInt()]; //find index and getValuse of index
 			boolean good = dis.readBoolean();
-//System.out.println("ID:" + ID + " x:" + x + " y:" + y + " dir:" + dir + " good:" + good);
 			
 //------------------------------------------------------------------
 /*
@@ -88,6 +85,7 @@ public class TankNewMsg implements Msg {
 				tc.tanks.add(t);
 			}
 //------------------------------------------------------------------
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -50,7 +50,6 @@ public class MissileDeadMsg implements Msg {
 			for(int i = 0; i < tc.missiles.size(); i++) {
 				Missile m = tc.missiles.get(i);
 				if(m.tankID == tankID && m.ID == ID) {
-//					tc.tanks.remove(t);
 					m.setLive(false); //each TankClient will KIA this Tank after next refresh
 					tc.explodes.add(new Explode(m.x, m.y, tc));
 					break;

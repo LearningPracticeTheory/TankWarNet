@@ -47,7 +47,6 @@ public class TankDeadMsg implements Msg {
 			for(int i = 0; i < tc.tanks.size(); i++) {
 				Tank t = tc.tanks.get(i);
 				if(t.ID == tankID) {
-//					tc.tanks.remove(t);
 					t.setLive(false); //each TankClient will KIA this Tank after next refresh
 					break;
 				}

@@ -7,8 +7,6 @@ class Tank {
 	public static final int WIDTH = 30;
 	public static final int HEIGHT = 30;
 	private static final int SPEED = 10;
-//	private final int AI_MOVE_LEVEL = 2;//1~9
-//	private final int AI_FIRE_LEVEL = 1;
 	
 	int x, y;
 	TankClient tc = null;
@@ -21,26 +19,17 @@ class Tank {
 	Direction dir = Direction.STOP;
 	public int ID;
 	
-//	private static Random r = new Random();
-//	private static Direction dirs[] = Direction.values();
-	
 	public Tank(int x, int y, boolean good, TankClient tc) {
 		this.x = x;
 		this.y = y;
 		this.tc = tc;
 		this.setGood(good);
 		gb = new GunBarrel(x + WIDTH / 2, y + HEIGHT / 2, this);
-//		tc.addKeyListener(new KeyMonitor());
-//System.out.println("gun barrel" + tc.gb);
-		
 	}
 	
 	public void draw(Graphics g) {
 		if(!live) { //No need compare which tank is good or bad, remove directly if !live
-					//synchronized at each Clients
-//			if(!isGood()) {
-				tc.tanks.remove(this);
-//			}
+			tc.tanks.remove(this); //synchronized at each Clients
 			return;
 		}
 		Color c = g.getColor();
@@ -55,17 +44,9 @@ class Tank {
 		if(gb != null) {
 			gb.draw(x + WIDTH / 2, y + HEIGHT / 2, g);
 		}
-//		AIDirection();
-//		AIFire();
 		move();
 	}
-	/*
-	public void AIFire() {
-		if(!isGood() && r.nextInt(10) < AI_FIRE_LEVEL) {
-			tc.missiles.add(fire());
-		}
-	}
-	*/
+
 	public Missile fire() {
 		int x = this.x + WIDTH / 2 - Missile.getWidth() / 2;
 		int y = this.y + HEIGHT / 2 - Missile.getHeight() / 2;
@@ -73,14 +54,6 @@ class Tank {
 		tc.nc.send(new MissileNewMsg(m));
 		return m;
 	}
-	/*
-	public void AIDirection() {
-		if(!isGood() && r.nextInt(10) < AI_MOVE_LEVEL) {
-			dir = dirs[r.nextInt(dirs.length)];
-		}
-	}
-	*/
-	
 	
 	public void direction() {
 		
@@ -106,7 +79,6 @@ class Tank {
 	}
 	
 	public void move() {
-//System.out.println(dir);
 		switch(dir) {
 		case U :
 			y -= SPEED;
@@ -148,7 +120,6 @@ class Tank {
 	}
 	
 	public void keyPressed(KeyEvent e) {
-		// TODO Auto-generated method stub
 		int key = e.getKeyCode();
 		switch(key) {
 		case KeyEvent.VK_F5:
@@ -171,15 +142,12 @@ class Tank {
 			break;
 		}
 		direction();
-		
 	}
 	
 	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
 		int key = e.getKeyCode();
 		switch(key) {
 		case KeyEvent.VK_CONTROL :
-//			tc.m = fire();
 			if(live) {
 				tc.missiles.add(fire());
 			}
@@ -198,7 +166,6 @@ class Tank {
 			break;
 		}
 		direction();
-		
 	}
 
 	public Rectangle getRect() {

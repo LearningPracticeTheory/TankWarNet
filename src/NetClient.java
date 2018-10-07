@@ -11,18 +11,19 @@ import java.net.UnknownHostException;
 
 import javax.swing.JOptionPane;
 
+/**
+ * TankClient 所有 Net 相关的操作均由 NetClient 处理 
+ */
 public class NetClient {
 		
 //	private static final int UDP_PORT = 6665; //different with Server's
 										//change every single time when in one machine
 										//or will throw Address already used
-//	int udpPort;
 	TankClient tc;
 	String serverIP = null;
 
 	NetClient(TankClient tc) {
-//		udpPort = UDP_PORT; //Client's UDP_PORT for receive message
-		this.tc = tc; //but send to Server use server's UDP
+		this.tc = tc;
 	}
 	
 	DatagramSocket ds = null;
@@ -32,61 +33,43 @@ public class NetClient {
 	
 	private void showErrorMsgDialog(String str) {
 		JOptionPane.showMessageDialog(tc, str);
-//		JOptionPane.showConfirmDialog(tc, str); //0, 1, 2
-//System.out.println("i = "  + i);
 	}
 	
+	/**
+	 * TCP 连接 Server
+	 * @param serverIP server 端的 IP 地址
+	 * @param tcpPort server 端的 TCP port
+	 * @param udpPort 本地 udpPort
+	 */
 	public void connect(String serverIP, int tcpPort, int udpPort) { //Server's IP & TCP_PORT + Client's UDP_PORT
 		try {
 			this.serverIP = serverIP;
-//			s = new Socket(IP, tcpPort); //TCP connect Client's IP & Server's TCP_PORT ERROR
 			s = new Socket(serverIP, tcpPort);
 		} catch(UnknownHostException e) {
-//			e.printStackTrace();
 			showErrorMsgDialog("UnknownHostException, System exit");
 			System.exit(0);
 		} catch(NoRouteToHostException e) {
-//			e.printStackTrace();
 			showErrorMsgDialog("No route to host: connect\n System exit");
 			System.exit(0);
-//			tc.new MyDialog(tc, "Enter Server's & Client's IP and UDP port", true);
 		} catch(ConnectException e) { //ERROR
-//System.out.println("1");
 			showErrorMsgDialog("Connection refused: connect\n The IP of Server refused to connect\n "
 					+ "Please enter another serverIP");
-//System.out.println("2");
-/*
-			if(tc.dialog != null) {
-				tc.dialog.setVisible(false);
-				tc.repaint();
-				tc.dialog.dispose();
-				tc.dialog = null;
-			}
-			*/
 			tc.jtfServerIP.setText("127.0.0.1");
-			
 			tc.dialog = tc.new MyDialog(tc, "Enter Server's & Client's IP and UDP port", true);
-//			System.exit(0);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 		
-			/*
-			 * Server's IP & TCP_PORT CORRECT
-			 * Server will get the source of Socket where it from
-			 * example: In Server, s.getInetAddress(); will get the Client's Address
-			 * so Client Don't need send the IP to Server, 
-			 * which means Server.accept().getInetAddress(); will get the IP of Client
-			 */
-/*			
-System.out.println(s.getInetAddress()); // /127.0.0.1
-System.out.println(s.getLocalAddress()); // /127.0.0.1
-System.out.println(s.getRemoteSocketAddress()); // /127.0.0.1:18104 remote
-System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
-*/
+		/*
+		 * Server will get the source of Socket where it from
+		 * example: In Server, s.getInetAddress(); will get the Client's Address
+		 * so Client Don't need send the IP to Server, 
+		 * which means Server.accept().getInetAddress(); will get the IP of Client
+		 */
+		
 		try {
 			dos = new DataOutputStream(s.getOutputStream());
-			dos.writeInt(udpPort); //UDP send & receive message --> write udpPort to Server and initialized one of client
+			dos.writeInt(udpPort); 
 			DataInputStream dis = new DataInputStream(s.getInputStream());
 			int ID = dis.readInt();
 			tc.myTank.ID = ID;
@@ -97,52 +80,38 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 				tc.myTank.setGood(false);
 			}
 			
-			ds = new DatagramSocket(udpPort); //No binding in to Socket, just get Client's UDP port
-			//but DatagrameSocket.send(new DatagramPacket(byte[], length, InetSocketAddress(IP, UDP_port)));
-			//InetSocketAddress's argument IP will point to the Address & UDP port
-			//example: Server's IP & UPD_Port
+			ds = new DatagramSocket(udpPort);
 			TankNewMsg msg = new TankNewMsg(tc.myTank);
 			send(msg);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
-//			e.printStackTrace();
 			JOptionPane.showMessageDialog(tc, "No Server or Address udpPort already in used \n System exit");
 			try {
 				dos.writeInt(TankClient.QUIT);
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			/*
-			System.out.println("Address already in use: Cannot bind, which means IP & UPD port repeat\n"
-					+ "Please rebuild & change UDP port & try again");
-			*/
 			System.exit(0);
-		} finally {
-			/*try { //Cannot just close connection, cause Server still need receive Client Quit message
-				if(s != null) {
-					s.close();
-					s = null;
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}*/
 		}
 		
 		new Thread(new UDPRecvThread()).start();
 		
 	}
 
+	/**
+	 * 发送信息给 server
+	 * @param msg 各种信息
+	 */
 	public void send(Msg msg) {
-//		msg.send(ds, "localhost", TankServer.UDP_PORT); //message send to Server
-			//use Server's ID & UDP_PORT
-		msg.send(ds, serverIP, TankServer.UDP_PORT); //send to Server by Server IP & UDP_PORT
+		msg.send(ds, serverIP, TankServer.UDP_PORT); //send to Server use Server IP & UDP_PORT
 	}
 	
+	/**
+	 * 起线程不断接收 Server 转发的 UDP 数据 
+	 */
 	private class UDPRecvThread implements Runnable {  //like Chat's ServerInfoThread
 
-//		DatagramSocket ds = null; //DatagramSocket already exist
-		
 		byte buf[] = new byte[1024];
 		
 		@Override
@@ -150,28 +119,24 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 			DatagramPacket dp = new DatagramPacket(buf, buf.length);
 			while(true) {
 				try {
-//					if(s.isClosed()) {
-//						showErrorMsgDialog("Server GG\n Please Quit");
-//System.out.println("ERR");
-//						continue;
-//					} else if(s.isConnected()) {
-						ds.receive(dp); //Received packet from Server
-//					} 
-System.out.println("A packet received from Server");
+					ds.receive(dp); //Received packet from Server
 					parse(dp);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-
+		
+		/**
+		 * 解析数据
+		 * @param dp 打包的数据
+		 * @see java.net.DatagramPacket
+		 */
 		private void parse(DatagramPacket dp) { //like send
 			ByteArrayInputStream dais = new ByteArrayInputStream(buf, 0, dp.getLength());
 			DataInputStream dis = new DataInputStream(dais);
-//			TankNewMsg msg = new TankNewMsg(tc.myTank); //the message belong different Tank, not always myTank
 			try {
-				int msgType = dis.readInt(); //Not read in Msg, NetClient manage msgType, which is a smart way
-//System.out.println("MsgType:" + msgType); //receive 0 -> ERROE -> MoveMsg.msgType need initialized
+				int msgType = dis.readInt(); //NetClient manage msgType, which is a smart way
 				msgManage(msgType, dis);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -179,6 +144,12 @@ System.out.println("A packet received from Server");
 
 		}
 		
+		/**
+		 * 信息管理，根据 msgType 解析不同的信息
+		 * @param msgType 各种类型数据的标识
+		 * @param dis 数据输入流
+		 * @see java.io.DataInputStream
+		 */
 		private void msgManage(int msgType, DataInputStream dis) {
 			Msg msg = null;
 			switch(msgType) {
@@ -189,7 +160,6 @@ System.out.println("A packet received from Server");
 			case Msg.TANK_MOVE_MSG:
 				msg = new TankMoveMsg(tc);
 				msg.parse(dis);
-//System.out.println("TankMoveMsg parse");
 				break;
 			case Msg.MISSILE_NEW_MSG:
 				msg = new MissileNewMsg(tc);

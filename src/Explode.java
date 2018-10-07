@@ -14,9 +14,13 @@ class Explode {
 		this.tc = tc;
 	}
 	
+	/**
+	 * 用不同直径的圆代表爆炸
+	 * @param g 画笔
+	 * @see java.awt.Graphics
+	 */
 	public void draw(Graphics g) {
 		if(step == diameters.length) {
-//			step = 0;
 			return;
 		}
 		Color c = g.getColor();

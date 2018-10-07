@@ -30,7 +30,7 @@ public class MissileNewMsg implements Msg {
 			dos.writeInt(m.x);
 			dos.writeInt(m.y);
 			dos.writeInt(m.dir.ordinal());
-			dos.writeBoolean(m.good);
+			dos.writeBoolean(m.isGood());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -59,7 +59,5 @@ public class MissileNewMsg implements Msg {
 			e.printStackTrace();
 		}
 	}
-
-	
 	
 }

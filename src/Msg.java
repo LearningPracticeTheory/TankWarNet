@@ -1,6 +1,9 @@
 import java.io.DataInputStream;
 import java.net.DatagramSocket;
 
+/**
+ * 各种 Message 的接口
+ */
 public interface Msg {
 
 	public static final int TANK_NEW_MSG = 1;

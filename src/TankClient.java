@@ -21,27 +21,25 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 
+/**
+ * Tank Client 端
+ * @author TinyA
+ * @date 2018/10/7 
+ */
 public class TankClient extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
 	public final int GAME_WIDTH = 800;
 	public final int GAME_HEIGHT = 600;
 	public static final int QUIT = 1;
-//	private final int TANK_FIRST_NUM = 5;
 	
 	int x, y;
-	
-//	Image img = null;
 	
 	Tank myTank = null;
 	Random r = new Random();
 	
-//	Tank enemyTank = new Tank(100, 100, false, this);
 	List<Tank> tanks = new ArrayList<Tank>();
-	
-//	Missile m = null;
 	List<Missile> missiles = new ArrayList<Missile>();
-//	Explode explode = new Explode(100, 100, this);
 	List<Explode> explodes = new ArrayList<Explode>();
 	
 	MyDialog dialog = null;
@@ -64,22 +62,22 @@ public class TankClient extends JFrame {
 
 		dialog = new MyDialog(this, "Enter Server's & Client's IP and UDP port", true);
 		
-//		setSize(800, 600);
 		setSize(GAME_WIDTH, GAME_HEIGHT);
 		setTitle("TankWar ID:" + myTank.ID);
 		setResizable(false);
 		setLocationRelativeTo(null);
-//		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		
 		this.addWindowListener(new WindowAdapter() {
-
+			
+			/**
+			 * 通知 Server 该 Client 退出
+			 */
 			@Override
 			public void windowClosing(WindowEvent e) {
 				try {
 					nc.dos.writeInt(QUIT); //tell server KIA this Client
 					nc.send(new TankDeadMsg(myTank.ID)); //then tell all the others that remove this one
 				} catch (IOException e1) {
-//					e1.printStackTrace();
 					showErrorMsgDialog("Connection reset, EXIT!");
 					System.exit(0);
 				} finally {
@@ -99,40 +97,24 @@ public class TankClient extends JFrame {
 		
 		getContentPane().setBackground(Color.BLACK);
 		setVisible(true);
-		/*
-		for(int i = 0; i < TANK_FIRST_NUM; i++) {
-			tanks.add(new Tank(50 + (i + 1) * 40, 50, false, this));
-		}
-		*/
+
 		new Thread(new PaintThread()).start();
 		addKeyListener(new KeyMonitor());
-		/*
-		nc.connect("localhost", TankServer.TCP_PORT); 
-			//use Client's IP connect to Server
-			//connect to Server's TCP port;
-		*/
+
 	}
 
 	public void paint(Graphics g) {
 		super.paint(g);
 
 		myTank.draw(g);
-//		enemyTank.draw(g);
 		
 		for(int i = 0; i < tanks.size(); i++) {
 			tanks.get(i).draw(g);
 		}
 		
-//		if(m != null) m.draw(g);
 		for(int i = 0; i < missiles.size(); i++) {
 			Missile m = missiles.get(i);
-			/*
-			if(m.hitTank(enemyTank) && enemyTank.isLive()) {
-				m.setLive(false);
-				enemyTank.setLive(false);
-			}
-			*/
-//			m.hitTanks(tanks);
+
 			if(m.hitTank(myTank)) {
 				TankDeadMsg tankDeadMsg = new TankDeadMsg(myTank.ID);
 				nc.send(tankDeadMsg);
@@ -143,7 +125,6 @@ public class TankClient extends JFrame {
 			m.draw(g);
 		}
 		
-//		explode.draw(g);
 		for(int i = 0; i < explodes.size(); i++) {
 			explodes.get(i).draw(g);
 		}
@@ -154,23 +135,8 @@ public class TankClient extends JFrame {
 		g.drawString("Tanks:  	" + tanks.size(), 10, 70);
 		g.setColor(c);
 		
-//		y += 8;
 	}
-	/*
-	@Override
-	public void update(Graphics g) {
-		if(img == null) {
-			img = this.createImage(WIDTH, HEIGHT);//JFrame
-		}
-		Graphics offScreenGraphics = img.getGraphics();
-		Color c = offScreenGraphics.getColor();
-		offScreenGraphics.setColor(Color.BLACK);
-		offScreenGraphics.fillRect(0, 0, WIDTH, HEIGHT);
-		paint(offScreenGraphics);
-		offScreenGraphics.setColor(c);
-		g.drawImage(img, 0, 0, null);
-	}
-	*/
+
 	private class PaintThread implements Runnable {
 
 		@Override
@@ -186,7 +152,6 @@ public class TankClient extends JFrame {
 		}
 		
 	}
-//key pressed && released on Tank will make more stable 
 	
 	private class KeyMonitor extends KeyAdapter {
 
@@ -202,31 +167,26 @@ public class TankClient extends JFrame {
 		
 	}
 	
-
-	
 	JTextField jtfServerIP = new JTextField("127.0.0.1", 12); 
 
+	/**
+	 * 指定 server IP & 本地 UDP port 
+	 */
 	public class MyDialog extends JDialog implements ActionListener{
 
 		private static final long serialVersionUID = 1L;
-		JLabel jlServerIP = new JLabel("Server IP:");
 		
-//		JLabel jlClientIP = new JLabel("Client IP:");
-//		JTextField jtfClientIP = new JTextField("192.168.140.1", 12);
+		JLabel jlServerIP = new JLabel("Server IP:");
 		JLabel jlClientUDPPort = new JLabel("Client UDP_Port:");
 		String udpPort = String.valueOf(r.nextInt(33333) + 10000);
 		JTextField jtfClientUDPPort = new JTextField(udpPort, 5);
 		JButton jbConfirm = new JButton("Confirm");
-//		frame.jtfServerIP = new JTextField("127.0.0.1", 12); 
-		//Syntax error on token "jtfServerIP", VariableDeclaratorId expected after this token
 		
 		MyDialog(JFrame frame, String title, boolean modal) {
 			super(frame, title, modal);
 			this.setLayout(new FlowLayout());
 			this.add(jlServerIP);
 			this.add(jtfServerIP);
-//			this.add(jlClientIP);
-//			this.add(jtfClientIP);
 			this.add(jlClientUDPPort);
 			this.add(jtfClientUDPPort);
 			this.add(jbConfirm);
@@ -256,9 +216,7 @@ public class TankClient extends JFrame {
 			if(e.getSource().equals(jbConfirm)) {
 				try {
 					String serverIP = jtfServerIP.getText().trim();
-//				 	String clientIP = jtfClientIP.getText().trim();
 					int clientUDPPort = Integer.parseInt(jtfClientUDPPort.getText().trim());
-//					nc.udpPort = udpPort; //Server's TCP port & Client's own UDP port
 					nc.connect(serverIP, TankServer.TCP_PORT, clientUDPPort); 
 					//connect to Server by use Server's IP & TCP_Port + Client UDP port
 				} catch(NumberFormatException e1) {
