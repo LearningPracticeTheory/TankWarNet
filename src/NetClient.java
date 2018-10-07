@@ -140,6 +140,10 @@ System.out.println("A packet received from Server");
 				msg = new TankDeadMsg(tc);
 				msg.parse(dis);
 				break;
+			case Msg.MISSILE_DEAD_MSG:
+				msg = new MissileDeadMsg(tc);
+				msg.parse(dis);
+				break;
 			}
 		}
 		

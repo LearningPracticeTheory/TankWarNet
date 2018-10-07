@@ -5,9 +5,11 @@ class Missile {
 	
 	private static final int WIDTH = 10;
 	private static final int HEIGHT = 10;
+	private static int ID_START = 1;
 	
 	int x, y;
 	int tankID;
+	int ID;
 	private static final int SPEED = Tank.getSpeed() * 2;
 
 	private boolean live = true;
@@ -21,6 +23,7 @@ class Missile {
 		this.x = x;
 		this.y = y;
 		this.dir = dir;
+		this.ID = ID_START++;
 	}
 	
 	public Missile(int tankID, int x, int y, boolean good, Direction dir, TankClient tc) {
