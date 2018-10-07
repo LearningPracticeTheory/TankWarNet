@@ -48,6 +48,13 @@ System.out.println(s.getLocalSocketAddress()); // /127.0.0.1:13176 local
 			DataInputStream dis = new DataInputStream(s.getInputStream());
 			int ID = dis.readInt();
 			tc.myTank.ID = ID;
+			
+			if(ID % 2 == 0) {
+				tc.myTank.setGood(true);
+			} else {
+				tc.myTank.setGood(false);
+			}
+			
 			ds = new DatagramSocket(udpPort); //No binding in to Socket, just get Client's UDP port
 			//but DatagrameSocket.send(new DatagramPacket(byte[], length, InetSocketAddress(IP, UDP_port)));
 			//InetSocketAddress's argument IP will point to the Address & UDP port
@@ -127,6 +134,10 @@ System.out.println("A packet received from Server");
 				break;
 			case Msg.MISSILE_NEW_MSG:
 				msg = new MissileNewMsg(tc);
+				msg.parse(dis);
+				break;
+			case Msg.TANK_DEAD_MSG:
+				msg = new TankDeadMsg(tc);
 				msg.parse(dis);
 				break;
 			}

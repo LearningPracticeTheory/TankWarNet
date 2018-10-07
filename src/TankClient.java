@@ -48,7 +48,7 @@ public class TankClient extends JFrame {
 		
 //		setSize(800, 600);
 		setSize(GAME_WIDTH, GAME_HEIGHT);
-		setTitle("TankWar");
+		setTitle("TankWar ID:" + myTank.ID);
 		setResizable(false);
 		setLocationRelativeTo(null);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -81,15 +81,19 @@ public class TankClient extends JFrame {
 //		if(m != null) m.draw(g);
 		for(int i = 0; i < missiles.size(); i++) {
 			Missile m = missiles.get(i);
-			m.draw(g);
 			/*
 			if(m.hitTank(enemyTank) && enemyTank.isLive()) {
 				m.setLive(false);
 				enemyTank.setLive(false);
 			}
 			*/
-			m.hitTanks(tanks);
-			m.hitTank(myTank);
+//			m.hitTanks(tanks);
+			if(m.hitTank(myTank)) {
+				TankDeadMsg msg = new TankDeadMsg(myTank.ID);
+				nc.send(msg);
+			}
+			
+			m.draw(g);
 		}
 		
 //		explode.draw(g);

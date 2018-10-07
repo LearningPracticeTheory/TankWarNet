@@ -1,13 +1,14 @@
-import java.awt.*;
-import java.awt.event.*;
-import java.util.Random;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 
 class Tank {	 
 	private static final int WIDTH = 30;
 	private static final int HEIGHT = 30;
 	private static final int SPEED = 10;
-	private final int AI_MOVE_LEVEL = 2;//1~9
-	private final int AI_FIRE_LEVEL = 1;
+//	private final int AI_MOVE_LEVEL = 2;//1~9
+//	private final int AI_FIRE_LEVEL = 1;
 	
 	int x, y;
 	TankClient tc = null;
@@ -20,14 +21,14 @@ class Tank {
 	Direction dir = Direction.STOP;
 	public int ID;
 	
-	private static Random r = new Random();
-	private static Direction dirs[] = Direction.values();
+//	private static Random r = new Random();
+//	private static Direction dirs[] = Direction.values();
 	
 	public Tank(int x, int y, boolean good, TankClient tc) {
 		this.x = x;
 		this.y = y;
 		this.tc = tc;
-		this.good = good;
+		this.setGood(good);
 		gb = new GunBarrel(x + WIDTH / 2, y + HEIGHT / 2, this);
 //		tc.addKeyListener(new KeyMonitor());
 //System.out.println("gun barrel" + tc.gb);
@@ -35,14 +36,15 @@ class Tank {
 	}
 
 	public void draw(Graphics g) {
-		if(!live) {
-			if(!good) {
+		if(!live) { //No need compare which tank is good or bad, remove directly if !live
+					//synchronized at each Clients
+//			if(!isGood()) {
 				tc.tanks.remove(this);
-			}
+//			}
 			return;
 		}
 		Color c = g.getColor();
-		if(good) {
+		if(isGood()) {
 			g.setColor(Color.RED);
 		} else {
 			g.setColor(Color.BLUE);
@@ -50,32 +52,34 @@ class Tank {
 		g.fillOval(x, y, WIDTH, HEIGHT);
 		g.drawString("" + ID, x, y-10);
 		g.setColor(c);
-		if(gb != null) gb.draw(x + WIDTH / 2, y + HEIGHT / 2, g);
-		AIDirection();
-		AIFire();
+		if(gb != null) {
+			gb.draw(x + WIDTH / 2, y + HEIGHT / 2, g);
+		}
+//		AIDirection();
+//		AIFire();
 		move();
 	}
-
+	/*
 	public void AIFire() {
-		if(!good && r.nextInt(10) < AI_FIRE_LEVEL) {
+		if(!isGood() && r.nextInt(10) < AI_FIRE_LEVEL) {
 			tc.missiles.add(fire());
 		}
 	}
-	
+	*/
 	public Missile fire() {
 		int x = this.x + WIDTH / 2 - Missile.getWidth() / 2;
 		int y = this.y + HEIGHT / 2 - Missile.getHeight() / 2;
-		Missile m = new Missile(ID, x, y, good, gb.dir, tc); 
+		Missile m = new Missile(ID, x, y, isGood(), gb.dir, tc);
 		tc.nc.send(new MissileNewMsg(m));
 		return m;
 	}
-	
+	/*
 	public void AIDirection() {
-		if(!good && r.nextInt(10) < AI_MOVE_LEVEL) {
+		if(!isGood() && r.nextInt(10) < AI_MOVE_LEVEL) {
 			dir = dirs[r.nextInt(dirs.length)];
 		}
 	}
-	
+	*/
 	public void direction() {
 		
 		Direction oldDir = dir;
@@ -211,6 +215,10 @@ class Tank {
 
 	public boolean isGood() {
 		return good;
+	}
+
+	public void setGood(boolean good) {
+		this.good = good;
 	}
 
 }
