@@ -1,13 +1,15 @@
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class NetClient {
 		
-	private static final int UDP_PORT = 6666; //different with Server's
+	private static final int UDP_PORT = 6665; //different with Server's
 										//change every single time when in one machine
 										//or will throw Address already used
 	int udpPort;
@@ -46,11 +48,44 @@ public class NetClient {
 				e.printStackTrace();
 			}
 		}
+		
+		new Thread(new UDPRecvThread()).start();
+		
 	}
 
 	private void send(TankNewMsg msg) {
 		msg.send(ds, "localhost", TankServer.UDP_PORT); //message send to Server
 			//use Server's ID & UDP_PORT 
+	}
+	
+	private class UDPRecvThread implements Runnable {  //like Chat's ServerInfoThread
+
+//		DatagramSocket ds = null; //DatagramSocket already exist
+		
+		byte buf[] = new byte[1024];
+		
+		@Override
+		public void run() {
+			DatagramPacket dp = new DatagramPacket(buf, buf.length);
+			while(true) {
+				try {
+					ds.receive(dp); //Received packet from Server
+System.out.println("A packet received from Server");
+					parse(dp);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		private void parse(DatagramPacket dp) { //like send
+			ByteArrayInputStream dais = new ByteArrayInputStream(buf, 0, dp.getLength());
+			DataInputStream dis = new DataInputStream(dais);
+//			TankNewMsg msg = new TankNewMsg(tc.myTank); //the message belong different Tank, not always myTank
+			TankNewMsg msg = new TankNewMsg();
+			msg.parse(dis);
+		}
+		
 	}
 	
 }

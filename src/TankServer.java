@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -42,7 +43,8 @@ public class TankServer {
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 				dos.writeInt(ID++);
 System.out.print("A Client connected! ");
-System.out.println("Addr:" + s.getInetAddress() + " port:" + s.getPort() + "udpPort: " + udpPort); //remote port
+System.out.println("Addr:" + s.getInetAddress() + " port:" + s.getPort() + 
+		" udpPort: " + udpPort); //remote port which is Client's UDP port
 				s.close(); //TCP only use once; then close;
 			}
 		} catch (IOException e) {
@@ -71,7 +73,7 @@ System.out.println("Addr:" + s.getInetAddress() + " port:" + s.getPort() + "udpP
 		
 	}
 	
-	private class UDPClient implements Runnable {
+	private class UDPClient implements Runnable { //Like Chat's Client
 
 		DatagramSocket ds = null;
 		/*		
@@ -105,6 +107,14 @@ System.out.println("UDP Socket started at udpPort: " + UDP_PORT);
 									//receive() is a block method, run next step until receive something
 									//So this Thread can start() at anywhere, whether before or after TCP
 System.out.println("a packet received from Client");
+					for(int i = 0; i < clients.size(); i++) {
+						Client c = clients.get(i);
+						dp.setSocketAddress(new InetSocketAddress(c.IP, c.udpPort)); 
+						//send to Client's Socket, need point to Client's exactly Address, 
+						//cause UDP need point to where the message should be send
+						//BUT NOT dp.setAddress(address); this method set Server's address (itself)
+						ds.send(dp);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

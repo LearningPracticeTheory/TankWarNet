@@ -1,4 +1,5 @@
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -11,6 +12,10 @@ public class TankNewMsg {
 	
 	TankNewMsg(Tank t) {
 		this.t = t;
+	}
+
+	public TankNewMsg() {
+
 	}
 
 	//Server's IP & UDP_PORT
@@ -31,6 +36,19 @@ public class TankNewMsg {
 		try {
 			ds.send(dp); //DatagramSocket.send(DatagramPacket); -> socket send a packet to server
 						//this.dp will initialize the Server's receive dp;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void parse(DataInputStream dis) {
+		try {
+			int ID = dis.readInt();
+			int x = dis.readInt();
+			int y = dis.readInt();
+			Direction dir = Direction.values()[dis.readInt()]; //find index and getValuse of index
+			boolean good = dis.readBoolean();
+System.out.println("ID:" + ID + " x:" + x + " y:" + y + " dir:" + dir + " good:" + good);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
