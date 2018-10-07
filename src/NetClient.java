@@ -53,9 +53,9 @@ public class NetClient {
 		
 	}
 
-	private void send(TankNewMsg msg) {
+	public void send(Msg msg) {
 		msg.send(ds, "localhost", TankServer.UDP_PORT); //message send to Server
-			//use Server's ID & UDP_PORT 
+			//use Server's ID & UDP_PORT
 	}
 	
 	private class UDPRecvThread implements Runnable {  //like Chat's ServerInfoThread
@@ -82,8 +82,29 @@ System.out.println("A packet received from Server");
 			ByteArrayInputStream dais = new ByteArrayInputStream(buf, 0, dp.getLength());
 			DataInputStream dis = new DataInputStream(dais);
 //			TankNewMsg msg = new TankNewMsg(tc.myTank); //the message belong different Tank, not always myTank
-			TankNewMsg msg = new TankNewMsg(tc);
-			msg.parse(dis);
+			try {
+				int msgType = dis.readInt(); //Not read in Msg, NetClient manage msgType, which is a smart way
+//System.out.println("MsgType:" + msgType); //receive 0 -> ERROE -> MoveMsg.msgType need initialized
+				msgManage(msgType, dis);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+		
+		private void msgManage(int msgType, DataInputStream dis) {
+			Msg msg = null;
+			switch(msgType) {
+			case Msg.TANK_NEW_MSG:
+				msg = new TankNewMsg(tc);
+				msg.parse(dis);
+				break;
+			case Msg.TANK_MOVE_MSG:
+				msg = new TankMoveMsg(tc);
+				msg.parse(dis);
+//System.out.println("TankMoveMsg parse"); //Debug
+				break;
+			}
 		}
 		
 	}

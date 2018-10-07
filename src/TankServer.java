@@ -43,7 +43,7 @@ public class TankServer {
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
 				dos.writeInt(ID++);
 System.out.print("A Client connected! ");
-System.out.println("Addr:" + s.getInetAddress() + " port:" + s.getPort() + 
+System.out.println("Addr:" + s.getInetAddress() + " tcpPort:" + s.getPort() + 
 		" udpPort: " + udpPort); //remote port which is Client's UDP port
 				s.close(); //TCP only use once; then close;
 			}
@@ -106,7 +106,7 @@ System.out.println("UDP Socket started at udpPort: " + UDP_PORT);
 									//dp will be initialized when Client send packet
 									//receive() is a block method, run next step until receive something
 									//So this Thread can start() at anywhere, whether before or after TCP
-System.out.println("a packet received from Client");
+System.out.println("a packet received from Client " + dp.getSocketAddress());
 					for(int i = 0; i < clients.size(); i++) {
 						Client c = clients.get(i);
 						dp.setSocketAddress(new InetSocketAddress(c.IP, c.udpPort)); 

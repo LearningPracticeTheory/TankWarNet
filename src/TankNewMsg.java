@@ -6,8 +6,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 
-public class TankNewMsg {
+public class TankNewMsg implements Msg {
 
+	int msgType = Msg.TANK_NEW_MSG;
 	Tank t = null;
 	TankClient tc = null;
 	
@@ -24,10 +25,12 @@ public class TankNewMsg {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
 		try {
+			dos.writeInt(msgType);
 			dos.writeInt(t.ID);
 			dos.writeInt(t.x);
 			dos.writeInt(t.y);
-			dos.writeInt(t.gb.dir.ordinal()); //GunBarrel's Direction decide Tank's direction
+			dos.writeInt(t.dir.ordinal()); //GunBarrel's Direction decide Tank's direction
+										 //but use tank.dir to identify
 			dos.writeBoolean(t.isGood());
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -54,7 +57,7 @@ public class TankNewMsg {
 			boolean good = dis.readBoolean();
 //System.out.println("ID:" + ID + " x:" + x + " y:" + y + " dir:" + dir + " good:" + good);
 			Tank t = new Tank(x, y, good, tc);
-			t.gb.dir = dir;
+			t.dir = dir;
 			t.ID = ID;
 			tc.tanks.add(t);
 		} catch (IOException e) {

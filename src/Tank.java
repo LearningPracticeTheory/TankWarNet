@@ -78,6 +78,9 @@ class Tank {
 	}
 	
 	public void direction() {
+		
+		Direction oldDir = dir;
+		
 		if(bU && !bD && !bL && !bR) dir = Direction.U;
 		else if(bU && !bD && bL && !bR) dir = Direction.UL;
 		else if(bU && !bD && !bL && bR) dir = Direction.UR;
@@ -88,7 +91,9 @@ class Tank {
 		else if(!bU && !bD && !bL && bR) dir = Direction.R;
 		else if(!bU && !bD && !bL && !bR) dir = Direction.STOP;
 		
-		
+		if(oldDir != dir) { //only send moveMsg when direction change
+			tc.nc.send(new TankMoveMsg(ID, dir)); 
+		}
 	}
 	
 	public void move() {
