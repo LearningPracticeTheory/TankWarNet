@@ -1,6 +1,8 @@
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
@@ -90,9 +92,11 @@ public class TankServer {
 			while(true) {
 				s = ss.accept();
 				DataInputStream dis = new DataInputStream(s.getInputStream());
-				String IP = s.getInetAddress().getHostAddress(); //Client IP Address
+//				String IP = s.getInetAddress().getHostAddress(); //Client IP Address
 				int udpPort = dis.readInt(); //Client's UDP port
-
+				BufferedReader br = new BufferedReader(new InputStreamReader(dis));
+				String IP = br.readLine();
+System.out.println("Client iP:" + IP);
 				Client c = new Client(IP, s.getPort(), udpPort, dis);
 				clients.add(c);
 				DataOutputStream dos = new DataOutputStream(s.getOutputStream());
